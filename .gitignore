@@ -1,0 +1,4 @@
+node_modules/
+yar.lock
+
+.env
