@@ -1,18 +1,6 @@
-/* 
-const mysql = require('mysql2');
+const Mongo = require('mongodb').MongoClient;
+const URL = 'mongodb://localhost:27017/';
 
-conexion = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    port: process.env.PORTDB,
-    database: process.env.DATABASE
-})
-
-conexion.connect(function (error) {
-    if (error) throw error;
-    console.log("Se ha conectado a la DataBase con Exito");
-}) */
 
 /* Controlador para Renderizar mimusica */
 const milistaController = (req, res) =>{
@@ -20,19 +8,27 @@ const milistaController = (req, res) =>{
 }
 
 /* Controlador para Guardar el Apodo el Home */
-/* const buscarLista = (req, res) =>{    
+const buscarLista = (req, res) =>{    
+
     const { ApodoEX } = req.body;
+
     if (ApodoEX == "") {
-    let validacion = "¡Esta vacio el campo eh 🤦 !";
-    res.render('mimusica', { validacion })
+        let validacion = "¡Esta vacio el campo eh 🤦 !";
+        res.render('mimusica', { validacion })
     }
     else {
-    let sql = "select * from CANCIONESTABLA where ApodoDB = '" + ApodoEX + "'"; //se deberian seleccionar solo las canciones del APODO    
-    let query = conexion.query(sql, (err, results) => {
-        if (err) throw err;
-        res.render('mimusica', { tabla1: 'CANCIONESTABLA', ApodoEX, results})
-    })
-    };
-}  */
+            console.log(ApodoEX)
+            Mongo.connect(URL, (error, db) => {
+            if (error) throw error;
+            const dbo = db.db('sprint1g6') //Creamos la piw porque la pwa ya esta creada
+            dbo.collection('cancionestabla').find({ApodoDB: ApodoEX}).toArray((error,results) => {
+                if (error) throw error;
+                res.render('mimusica', { tabla1: 'CANCIONESTABLA', ApodoEX, results})
+                console.log('Busqueda exitosa!');
+            });   
+            })
+        };
+}
 
-module.exports = {milistaController/* , buscarLista */};
+module.exports = {milistaController, buscarLista};
+

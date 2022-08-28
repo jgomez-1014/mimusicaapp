@@ -1,10 +1,14 @@
+const Mongo = require('mongodb').MongoClient;
+const URL = 'mongodb://localhost:27017/';
+
+
 /* Controlador para imprimir el Agregar */
 const agregarController = (req, res) =>{
   res.render('agregar');
 }
 
 /* Controlador para Guardar la nueva cancion */
-/* const agregarCancionController = (req, res) =>{    
+const agregarCancionController = (req, res) =>{    
   const { titulo, artista, Apodo, fav } = req.body;
   console.log(req.body);
   if (titulo == "" || artista == "" || Apodo == "") {
@@ -13,18 +17,21 @@ const agregarController = (req, res) =>{
   }
   else {
     if (fav == "on") {
-        let data = {
-          tituloDB: titulo,
-          artistaDB: artista,
-          ApodoDB: Apodo,
-          favDB: 1
-        }
-        let validacion = "¡Agregamos la cancion a tu lista 💛!";
-        let sql = "INSERT INTO CANCIONESTABLA SET ?";
-        let query = conexion.query(sql, data, (err, results) => {
-          if (err) throw err;
-          })
-          res.render("agregar", { validacion })
+      let data = {
+        tituloDB: titulo,
+        artistaDB: artista,
+        ApodoDB: Apodo,
+        favDB: 1}
+        Mongo.connect(URL, (error, db) => {
+          if (error) throw error;
+          const dbo = db.db('sprint1g6') //Creamos la piw porque la pwa ya esta creada
+          dbo.collection('cancionestabla').insertOne(data, (err,collection) => {
+              if (error) throw error;
+              let validacion = "¡Agregamos la cancion a tu lista 💛!";
+              res.render("agregar", { validacion })
+              console.log('Inserción de datos exitosa!');
+          });   
+        }) 
       }
     else {
       let data = {
@@ -33,14 +40,19 @@ const agregarController = (req, res) =>{
         ApodoDB: Apodo,
         favDB: 0
       }
-      let validacion = "¡Agregamos la cancion a tu lista 💛!";
-      let sql = "INSERT INTO CANCIONESTABLA SET ?";
-      let query = conexion.query(sql, data, (err, results) => {
-      if (err) throw err;
-      })
-      res.render("agregar", { validacion })
-    }
-  };  
-} */
 
-module.exports = {agregarController/* , agregarCancionController */};
+      Mongo.connect(URL, (error, db) => {
+        if (error) throw error;
+        const dbo = db.db('sprint1g6') //Creamos la piw porque la pwa ya esta creada
+        dbo.collection('cancionestabla').insertOne(data, (err,collection) => {
+            if (error) throw error;
+            let validacion = "¡Agregamos la cancion a tu lista 💛!";
+            res.render("agregar", { validacion })
+            console.log('Inserción de datos exitosa!');
+        });   
+    })        
+   }
+  };  
+}
+
+module.exports = {agregarController, agregarCancionController};
